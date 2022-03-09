@@ -1,0 +1,20 @@
+{
+    "manifest_version": 3,
+    "name": "eBay-Kleinanzeigen Scam detecter",
+    "version": "0.1",
+
+    "description": "a simple Chrome extension which supports you to detect scam on eBay Kleinanzeigen",
+    "action": {
+        "default_title": "Klicke hier, um mehr Informationen zum Angebot zu erhalten.",
+        "default_popup": "extension_window/popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content_scripts/highlight.js"]
+        }
+    ],
+    "background": {
+        "service_worker": "background.js"
+    }
+}
