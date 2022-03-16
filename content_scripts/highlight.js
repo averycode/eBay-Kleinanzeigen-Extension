@@ -203,12 +203,40 @@ function runScript() {
             spanString =
                 spanString +
                 `Der Verkäufer ist erst seit kurzen auf eBay Kleinanzeigen aktiv und konnte somit bei eventuellen betrügerischen Aktionen noch nicht entdeckt werden.
-            
-            Kundenbewertungen liegen leider nicht vor.
-            
-            Sicheres Zahlen wurde nicht hinterlegt.
-            
-            Zu diesem Verkäufer gibt es keine positiven Informationen. Es muss sich nicht zwigend um ein betrügerisches Angebot handeln. Allerdings ist Vorsicht geboten!`;
+                
+                `;
+
+            if (zufriedenheit || freundlichkeit || zuverlässigkeit) {
+                spanString =
+                    spanString +
+                    `Es liegen zwar Kundenbewertungen vor, diese könnten in der kurzen Zeit aber gefälscht sein.
+                
+                `;
+            } else {
+                spanString =
+                    spanString +
+                    `Kundenbewertungen liegen nicht vor.
+                
+                `;
+            }
+
+            if (sicherZahlen) {
+                spanString =
+                    spanString +
+                    `Sicheres Zahlen wurde hinterlegt.
+                
+                `;
+            } else {
+                spanString =
+                    spanString +
+                    `Sicheres Zahlen wurde nicht hinterlegt
+                
+                `;
+            }
+
+            spanString =
+                spanString +
+                `Es muss sich nicht zwigend um ein betrügerisches Angebot handeln. Allerdings ist Vorsicht geboten!`;
         }
 
         profileBox.classList.add("popup");
