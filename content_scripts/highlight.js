@@ -13,13 +13,17 @@ style.innerHTML = `
         --red: #FF0000;
         --red-alpha: #FF000060;
         --red-mouseover: #DD111160;
-        --purple: #ff00ff;
-        --purple-alpha: #ff00ff60;
-        --purple-mouseover: #dd00dd60;
+        --purple: #ffddff;
+        --purple-alpha: #ffddff60;
+        --purple-mouseover: #ddeedd60;
 
         --profileBox-color: var(--purple);
         --profileBox-color-alpha: var(--purple-alpha);
         --profileBox-color-mouseover: var(--purple-mouseover);
+
+        --productInfo-color: var(--purple);
+        --productInfo-color-alpha: var(--purple-alpha);
+        --productInfo-color-mouseover: var(--purple-mouseover);
       }
       .profileBox {
           border: 3px solid var(--profileBox-color);
@@ -30,14 +34,14 @@ style.innerHTML = `
           background-color: var(--profileBox-color-mouseover);
       }
 
-      .zufrieden {
-          border: 3px solid var(--green);
-          background-color: var(--green-alpha);
+      .productInfo {
+          border: 3px solid var(--productInfo-color);
+          background-color: var(--productInfo-color-alpha);
       }
 
-      .gefahr {
-          border: 3px solid var(--red);
-          background-color: var(--red-alpha)
+      .productInfo-mouseover {
+        border: 3px solid var(--productInfo-color);
+        background-color: var(--productInfo-color-mouseover);
       }
 
       /* Popup container */
@@ -114,9 +118,20 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 let profileBox = document.querySelector("#viewad-profile-box");
 let profileBox_span = document.createElement("span");
 
+let productInfo = document.querySelector("#viewad-main-info");
+let productInfo_span = document.createElement("span");
+let productTitle = document
+    .querySelector("#viewad-title")
+    .innerText.replaceAll(" ", "-")
+    .toLowerCase();
+let productPrice = document.querySelector("#viewad-price").innerText;
+
 // Adding EventListeners
 profileBox.addEventListener("mouseover", mouseover_profileBox);
 profileBox.addEventListener("mouseout", mouseout_profileBox);
+
+productInfo.addEventListener("mouseover", mouseover_productInfo);
+productInfo.addEventListener("mouseout", mouseout_productInfo);
 
 // everything in here what has to do with on and off
 function runScript() {
@@ -153,11 +168,9 @@ function runScript() {
         // Sicher bezahlen falls vorhanden
         let sicherZahlen = document.querySelector(".viewad-secure-payment-badge");
 
-        let spanString = `Einschätzung
+        let spanString = ``;
 
-        `;
-
-        // TODO: Konditionen für ein sicheres und ein gefährliches Angebot definieren und dementsprechend die Farben ändern
+        // Konditionen für ein sicheres und ein gefährliches Angebot definieren und dementsprechend die Farben ändern
         if (aktivSeit > 180 && (zufriedenheit > 0 || sicherZahlen)) {
             profileBox.style.setProperty("--profileBox-color", "var(--green)");
             profileBox.style.setProperty("--profileBox-color-alpha", "var(--green-alpha)");
@@ -236,7 +249,7 @@ function runScript() {
 
             spanString =
                 spanString +
-                `Es muss sich nicht zwigend um ein betrügerisches Angebot handeln. Allerdings ist Vorsicht geboten!`;
+                `Es muss sich nicht zwigend um ein betrügerisches Konto handeln. Allerdings ist Vorsicht geboten!`;
         }
 
         profileBox.classList.add("popup");
@@ -245,14 +258,26 @@ function runScript() {
         profileBox.classList.add("profileBox");
         profileBox.appendChild(profileBox_span);
 
-        //
+        //// Produkt Info Box on ////
+
+        // Preisvergleich + Versand / Abholung
+        ebay_fetch(productTitle);
+
+        productInfo.classList.add("popup");
+        productInfo_span.setAttribute("class", "popuptext");
+
+        productInfo.classList.add("productInfo");
+        productInfo.appendChild(productInfo_span);
     } else {
-        // Seller Profile Box off
+        //// Seller Profile Box off ////
         profileBox.classList.remove("profileBox");
         profileBox.classList.remove("popup");
         profileBox.removeChild(profileBox_span);
 
-        //
+        //// Produkt Info Box off ////
+        productInfo.classList.remove("productInfo");
+        productInfo.classList.remove("popup");
+        productInfo.removeChild(productInfo_span);
     }
 }
 
@@ -270,7 +295,20 @@ function mouseout_profileBox() {
     }
 }
 
-// Check ob die Funtion richtig funtioniert
+function mouseover_productInfo() {
+    if (running) {
+        productInfo.classList.add("productInfo-mouseover");
+        productInfo_span.classList.add("show");
+    }
+}
+
+function mouseout_productInfo() {
+    if (running) {
+        productInfo.classList.remove("productInfo-mouseover");
+        productInfo_span.classList.remove("show");
+    }
+}
+
 function Date_EUtoAM(date) {
     let temp = date.split(".");
     return temp[2] + "-" + temp[1] + "-" + temp[0];
@@ -281,4 +319,196 @@ function aktivitaetsZeitraum(seit) {
     let today = new Date();
     let timeDiff = today.getTime() - seit.getTime();
     return Math.floor(timeDiff / (1000 * 3600 * 24));
+}
+
+// Sidenote: runScript auf async setzen und ebay_fetch auf await.
+async function ebay_fetch(productTitle) {
+    await fetch("https://www.ebay-kleinanzeigen.de/s-" + productTitle + "/k0")
+        .then(function (response) {
+            return response.text();
+        })
+        .then(function (html) {
+            let productPrice = document.querySelector("#viewad-price").innerText.trim();
+            if (productPrice.includes(".")) {
+                productPrice = productPrice.replace(".", "");
+            }
+            let regex_productPrice = /\d+/;
+            productPrice = parseInt(regex_productPrice.exec(productPrice)[0]);
+
+            // Preisvergleich
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(html, "text/html").body;
+            let searchList = doc.querySelector("#srchrslt-adtable");
+            let items = searchList.querySelectorAll(
+                "li.ad-listitem.lazyload-item:not(.badge-topad)"
+            );
+            let prices = [];
+            for (let item of items) {
+                let price = item.querySelector(".aditem-main--middle--price").innerText.trim();
+                if (price.includes(".")) {
+                    price = price.replace(".", "");
+                }
+                let regex_price = /\d+/;
+                if (regex_price.exec(price) !== null) {
+                    price = parseInt(regex_price.exec(price)[0]);
+                    prices.push(price);
+                }
+            }
+            let sum = 0;
+            for (let p of prices) {
+                sum = sum + p;
+            }
+            let averagePrice = Math.floor(sum / prices.length);
+            let abweichung = averagePrice * 0.5;
+            let imDurchschnitt;
+
+            let productString =
+                `Der Durchschnittspreis für dieses Produkt liegt auf eBay Kleinanzeigen bei ` +
+                averagePrice +
+                ` €.
+                `;
+            if (productPrice < averagePrice - abweichung) {
+                productString =
+                    productString +
+                    `
+                    Der Preis weicht zu sehr vom Durchschnittspreis ab. Hier ist Vorsicht geboten.`;
+                imDurchschnitt = false;
+            } else if (productPrice > averagePrice + abweichung) {
+                productString =
+                    productString +
+                    `
+                    Der Preis ist deutlich teurer als der Durchschnittspreis. Hier ist Vorsicht geboten.`;
+                imDurchschnitt = false;
+            } else {
+                productString =
+                    productString +
+                    `
+                    Der Preis weicht nicht auffällig von dem Durschnittspreis ab.`;
+                imDurchschnitt = true;
+            }
+
+            // TODO:
+            // Highlights farblich ändern
+            // Versand / Abholung
+            let versandDetails = document
+                .querySelector(".boxedarticle--details--shipping")
+                .innerText.trim();
+
+            let versandString = ``;
+
+            if (versandDetails == "") {
+                versandString =
+                    versandString +
+                    `
+                    
+                    Es sind keine Angaben zum Versand enthalten. Frag den Verkäufer ob eine Abholung möglich ist.
+                    Falls eine Abholung nicht in Frage kommt, ist Vorsicht geboten!`;
+
+                productInfo.style.setProperty("--productInfo-color", "var(--orange)");
+                productInfo.style.setProperty("--productInfo-color-alpha", "var(--orange-alpha)");
+                productInfo.style.setProperty(
+                    "--productInfo-color-mouseover",
+                    "var(--orange-mouseover)"
+                );
+            } else if (versandDetails == "Versand möglich") {
+                versandString =
+                    versandString +
+                    `
+                    
+                    Ein Versand von diesem Produkt ist möglich. 
+                    
+                    Um betrügerische Aktionen aufzudecken, frage den Verkäufer ob auch eine Abholung in Frage kommen würde.
+                    Falls eine Abholung nicht in Frage kommt, ist Vorsicht geboten!`;
+
+                if (imDurchschnitt) {
+                    productInfo.style.setProperty("--productInfo-color", "var(--orange)");
+                    productInfo.style.setProperty(
+                        "--productInfo-color-alpha",
+                        "var(--orange-alpha)"
+                    );
+                    productInfo.style.setProperty(
+                        "--productInfo-color-mouseover",
+                        "var(--orange-mouseover)"
+                    );
+                } else {
+                    productInfo.style.setProperty("--productInfo-color", "var(--red)");
+                    productInfo.style.setProperty("--productInfo-color-alpha", "var(--red-alpha)");
+                    productInfo.style.setProperty(
+                        "--productInfo-color-mouseover",
+                        "var(--red-mouseover)"
+                    );
+                }
+            } else if (versandDetails == "Nur Abholung") {
+                versandString =
+                    versandString +
+                    `
+                    
+                    Das Produkt ist nur zur Abholung verfügbar. Das mindert die Wahrscheinlichkeit eines Betruges.`;
+
+                if (imDurchschnitt) {
+                    productInfo.style.setProperty("--productInfo-color", "var(--green)");
+                    productInfo.style.setProperty(
+                        "--productInfo-color-alpha",
+                        "var(--green-alpha)"
+                    );
+                    productInfo.style.setProperty(
+                        "--productInfo-color-mouseover",
+                        "var(--green-mouseover)"
+                    );
+                } else {
+                    productInfo.style.setProperty("--productInfo-color", "var(--orange)");
+                    productInfo.style.setProperty(
+                        "--productInfo-color-alpha",
+                        "var(--orange-alpha)"
+                    );
+                    productInfo.style.setProperty(
+                        "--productInfo-color-mouseover",
+                        "var(--orange-mouseover)"
+                    );
+                }
+            } else if (versandDetails.startsWith("+")) {
+                let regex_versand = /\d,\d+ €/;
+                let versandPrice = regex_versand.exec(versandDetails)[0];
+                versandString =
+                    versandString +
+                    `
+
+                    Ein Versand von diesem Produkt ist möglich und kostet ` +
+                    versandPrice +
+                    `. 
+                    
+                    Um betrügerische Aktionen aufzudecken, frage den Verkäufer ob auch eine Abholung in Frage kommen würde.
+                    Falls eine Abholung nicht in Frage kommt, ist Vorsicht geboten!`;
+
+                if (imDurchschnitt) {
+                    productInfo.style.setProperty("--productInfo-color", "var(--orange)");
+                    productInfo.style.setProperty(
+                        "--productInfo-color-alpha",
+                        "var(--orange-alpha)"
+                    );
+                    productInfo.style.setProperty(
+                        "--productInfo-color-mouseover",
+                        "var(--orange-mouseover)"
+                    );
+                } else {
+                    productInfo.style.setProperty("--productInfo-color", "var(--red)");
+                    productInfo.style.setProperty("--productInfo-color-alpha", "var(--red-alpha)");
+                    productInfo.style.setProperty(
+                        "--productInfo-color-mouseover",
+                        "var(--red-mouseover)"
+                    );
+                }
+            }
+
+            // Mögliche Versandstufen
+            // gar nichts
+            // nur Abholung
+            // Versand möglich
+            // + Versand ab 4,99€
+
+            productInfo_span.innerText = productString + versandString;
+        })
+        .catch(function (err) {
+            console.log("eBay Fetch Error : " + err);
+        });
 }
