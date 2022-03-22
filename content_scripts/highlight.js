@@ -58,6 +58,10 @@ style.innerHTML = `
         background-color: var(--description-color-mouseover);
       }
 
+      p:focus {
+          outline: none;
+      }
+
       /* Popup container */
         .popup {
             position: relative;
@@ -142,6 +146,7 @@ let productPrice = document.querySelector("#viewad-price").innerText;
 
 let description = document.querySelector("#viewad-description");
 let description_span = document.createElement("span");
+let description_text = document.querySelector("#viewad-description-text");
 
 // Adding EventListeners
 profileBox.addEventListener("mouseover", mouseover_profileBox);
@@ -223,7 +228,7 @@ function runScript() {
                 spanString +
                 `Der Verkäufer ist seit länger als einem halben Jahr aktiv. Das ist ein gutes Zeichen!
             
-            Leider liegen keine Kundenbewertungen vor die analysiert werden können.
+            Leider liegen keine Kundenbewertungen vor die analysiert werden können oder sie sagen zu wenig aus.
 
             Sicheres Zahlen wurde nicht hinterlegt.
 
@@ -290,11 +295,24 @@ function runScript() {
         productInfo.appendChild(productInfo_span);
 
         //// Description ////
+
+        // TODO:
+        // Rechtschreibung
+        // Zahlungsmethoden
+        // länge der Beschreibung
+
+        let spanString_description = `Achte auf die Rechtschreibung. Rechtschreibfehler und Grammatikfehler wirken unseriös.`;
+
         description.classList.add("popup");
         description_span.setAttribute("class", "popuptext");
-        description_span.innerText = "Test";
+        description_span.innerText = spanString_description;
         description.classList.add("description");
         description.appendChild(description_span);
+        description.classList.add("p:focus");
+
+        description_text.setAttribute("contenteditable", true);
+        description_text.setAttribute("spellcheck", true);
+        description_text.focus();
     } else {
         //// Seller Profile Box off ////
         profileBox.classList.remove("profileBox");
@@ -305,6 +323,14 @@ function runScript() {
         productInfo.classList.remove("productInfo");
         productInfo.classList.remove("popup");
         productInfo.removeChild(productInfo_span);
+
+        //// Description off ////
+        description.classList.remove("description");
+        description.classList.remove("popup");
+        description.removeChild(description_span);
+
+        description_text.setAttribute("contenteditable", false);
+        description_text.setAttribute("spellcheck", false);
     }
 }
 
@@ -428,9 +454,6 @@ async function ebay_fetch(productTitle) {
                 imDurchschnitt = true;
             }
 
-            // TODO:
-            // Highlights farblich ändern
-            // Versand / Abholung
             let versandDetails = document
                 .querySelector(".boxedarticle--details--shipping")
                 .innerText.trim();
