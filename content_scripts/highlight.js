@@ -24,6 +24,10 @@ style.innerHTML = `
         --productInfo-color: var(--purple);
         --productInfo-color-alpha: var(--purple-alpha);
         --productInfo-color-mouseover: var(--purple-mouseover);
+
+        --description-color: var(--purple);
+        --description-color-alpha: var(--purple-alpha);
+        --description-color-mouseover: var(--purple-mouseover);
       }
       .profileBox {
           border: 3px solid var(--profileBox-color);
@@ -42,6 +46,16 @@ style.innerHTML = `
       .productInfo-mouseover {
         border: 3px solid var(--productInfo-color);
         background-color: var(--productInfo-color-mouseover);
+      }
+
+      .description {
+        border: 3px solid var(--description-color);
+        background-color: var(--description-color-alpha);
+      }
+
+      .description-mouseover {
+        border: 3px solid var(--description-color);
+        background-color: var(--description-color-mouseover);
       }
 
       /* Popup container */
@@ -126,12 +140,18 @@ let productTitle = document
     .toLowerCase();
 let productPrice = document.querySelector("#viewad-price").innerText;
 
+let description = document.querySelector("#viewad-description");
+let description_span = document.createElement("span");
+
 // Adding EventListeners
 profileBox.addEventListener("mouseover", mouseover_profileBox);
 profileBox.addEventListener("mouseout", mouseout_profileBox);
 
 productInfo.addEventListener("mouseover", mouseover_productInfo);
 productInfo.addEventListener("mouseout", mouseout_productInfo);
+
+description.addEventListener("mouseover", mouseover_description);
+description.addEventListener("mouseout", mouseout_description);
 
 // everything in here what has to do with on and off
 function runScript() {
@@ -268,6 +288,13 @@ function runScript() {
 
         productInfo.classList.add("productInfo");
         productInfo.appendChild(productInfo_span);
+
+        //// Description ////
+        description.classList.add("popup");
+        description_span.setAttribute("class", "popuptext");
+        description_span.innerText = "Test";
+        description.classList.add("description");
+        description.appendChild(description_span);
     } else {
         //// Seller Profile Box off ////
         profileBox.classList.remove("profileBox");
@@ -306,6 +333,20 @@ function mouseout_productInfo() {
     if (running) {
         productInfo.classList.remove("productInfo-mouseover");
         productInfo_span.classList.remove("show");
+    }
+}
+
+function mouseover_description() {
+    if (running) {
+        description.classList.add("description-mouseover");
+        description_span.classList.add("show");
+    }
+}
+
+function mouseout_description() {
+    if (running) {
+        description.classList.remove("description-mouseover");
+        description_span.classList.remove("show");
     }
 }
 
