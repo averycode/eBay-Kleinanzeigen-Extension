@@ -11,7 +11,7 @@
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
-            "js": ["content_scripts/highlight.js"]
+            "js": ["highlight.js"]
         }
     ],
     
