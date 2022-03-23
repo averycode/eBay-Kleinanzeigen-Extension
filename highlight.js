@@ -296,12 +296,82 @@ function runScript() {
 
         //// Description ////
 
+        let spanString_description = `Achte auf die Rechtschreibung. Rechtschreibfehler und Grammatikfehler wirken unseriös.`;
+
+        let text = description_text.innerText.toLowerCase();
+        let dict_payment_methods = [
+            "paypal",
+            " bar",
+            "überweisung",
+            "gutschein",
+            "paysafe",
+            ".bar",
+        ];
+
+        let method_included = false;
+
+        for (let method of dict_payment_methods) {
+            console.log(text);
+            if (text.includes(method)) {
+                if (method == dict_payment_methods[0]) {
+                    spanString_description =
+                        spanString_description +
+                        `
+                    
+                    In der Beschreibung wurde Paypal erwähnt. Schau am besten ob Paypal angeboten wird. Falls ja lege dir einen Paypal Account an, falls du noch keinen hast und zahle darüber. Bei einem Problem kannst du Paypal Bescheid geben und bekommst so dein Geld zurück.`;
+                    method_included = true;
+                }
+                if (method == (dict_payment_methods[1] || dict_payment_methods[5])) {
+                    spanString_description =
+                        spanString_description +
+                        `
+                    
+                    In der Beschreibung wurde Bar-Zahlung erwähnt. Schau am besten nach ob der Verkäufer Bar-Zahlung akzeptiert. Falls nicht, ist Vorsicht geboten.`;
+                    method_included = true;
+                }
+                if (method == dict_payment_methods[2]) {
+                    spanString_description =
+                        spanString_description +
+                        `
+                    
+                    In der Beschreibung wurde Überweisung erwähnt. Die Zahlung per Überweisung gilt als gefährlich, da dein Geld im Notfall nicht wieder zurückgebucht werden kann.
+                    Frage den Verkäufer, ob auch eine andere Zahlungsmethode angeboten wird, ansonsten ist Vorsicht geboten!`;
+                    method_included = true;
+                }
+                if (method == (dict_payment_methods[3] || dict_payment_methods[4])) {
+                    spanString_description =
+                        spanString_description +
+                        `
+                    
+                    Zahlungen über diverse Gutscheine oder PaySafe Karten sind ein direktes Indiz für einen Betrug. Vorsicht!`;
+                    method_included = true;
+                }
+            }
+        }
+        if (!method_included) {
+            if (sicherZahlen) {
+                spanString_description =
+                    spanString_description +
+                    `
+                
+                    Aus der Beschreibung konnte keine Zahlungsmethode gefunden werden.
+
+                    Allerdings bietet der Verkäufer sicheres Zahlen an. Beim sicheren Zahlen zahlst du über eBay Kleinanzeigen und kriegst im Notfall dein Geld zurück.`;
+            } else {
+                spanString_description =
+                    spanString_description +
+                    `
+                
+                    Aus der Beschreibung konnte keine Zahlungsmethode gefunden werden.
+
+                    Falls du die Ware abholen willst, frage den Verkäufer ob er Bar-Zahlung akzeptiert.
+                    Falls du die Ware zugeschickt bekommen möchtest, lege dir einen Paypal Account an, falls du noch keinen hast und zahle darüber. Bei einem Problem kannst du Paypal Bescheid geben und bekommst so dein Geld zurück.`;
+            }
+        }
+
         // TODO:
-        // Rechtschreibung
         // Zahlungsmethoden
         // länge der Beschreibung
-
-        let spanString_description = `Achte auf die Rechtschreibung. Rechtschreibfehler und Grammatikfehler wirken unseriös.`;
 
         description.classList.add("popup");
         description_span.setAttribute("class", "popuptext");
