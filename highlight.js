@@ -142,6 +142,10 @@ let productTitle = document
     .querySelector("#viewad-title")
     .innerText.replaceAll(" ", "-")
     .toLowerCase();
+// .split("-")
+// .slice(0, 3)
+// .join("-")
+console.log(productTitle);
 let productPrice = document.querySelector("#viewad-price").innerText;
 
 let description = document.querySelector("#viewad-description");
@@ -311,7 +315,6 @@ function runScript() {
         let method_included = false;
 
         for (let method of dict_payment_methods) {
-            console.log(text);
             if (text.includes(method)) {
                 if (method == dict_payment_methods[0]) {
                     spanString_description =
