@@ -199,11 +199,17 @@ function runScript() {
 
         let spanString = ``;
 
-        // Konditionen für ein sicheres und ein gefährliches Angebot definieren und dementsprechend die Farben ändern
+        // Konditionen für ein sicheres und ein gefährliches Angebot
         if (aktivSeit > 180 && (zufriedenheit > 0 || sicherZahlen)) {
             profileBox.style.setProperty("--profileBox-color", "var(--green)");
             profileBox.style.setProperty("--profileBox-color-alpha", "var(--green-alpha)");
             profileBox.style.setProperty("--profileBox-color-mouseover", "var(--green-mouseover)");
+
+            spanString =
+                spanString +
+                `Der Verkäufer scheint ungefährlich zu sein.
+            
+            `;
             spanString =
                 spanString +
                 `Der Verkäufer ist seit länger als einem halben Jahr aktiv. Das ist ein gutes Zeichen!
@@ -212,36 +218,38 @@ function runScript() {
             if (zufriedenheit > 0) {
                 spanString =
                     spanString +
-                    `Im Durchschnitt waren die Kunden sehr zufrieden mit dem Verkäufer.
-
-                `;
+                    `Im Durchschnitt waren die Kunden sehr zufrieden mit dem Verkäufer.`;
             }
             if (sicherZahlen) {
                 spanString =
                     spanString +
-                    `Der Verkäufer bietet sicheres Zahlen über eBay Kleinanzeigen an. Im Notfall bekommst du so dein Geld zurück.
-                    
-                    `;
+                    `Der Verkäufer bietet sicheres Zahlen über eBay Kleinanzeigen an. Im Notfall bekommst du so dein Geld zurück.`;
             }
-            spanString = spanString + `Der Verkäufer scheint ungefährlich zu sein.`;
         } else if (aktivSeit > 180) {
             profileBox.style.setProperty("--profileBox-color", "var(--orange)");
             profileBox.style.setProperty("--profileBox-color-alpha", "var(--orange-alpha)");
             profileBox.style.setProperty("--profileBox-color-mouseover", "var(--orange-mouseover)");
             spanString =
                 spanString +
-                `Der Verkäufer ist seit länger als einem halben Jahr aktiv. Das ist ein gutes Zeichen!
+                `Der Verkäufer scheint nicht gefährlich zu sein. Jedoch könnte es zu Komplikationen beim Kaufvorgang kommen.
+                
+            Der Verkäufer ist seit länger als einem halben Jahr aktiv. Das ist ein gutes Zeichen!
             
             Leider liegen keine Kundenbewertungen vor die analysiert werden können oder sie sagen zu wenig aus.
 
             Sicheres Zahlen wurde nicht hinterlegt.
-
-            Der Verkäufer scheint nicht gefährlich zu sein. Jedoch könnte es zu Komplikationen beim Kaufvorgang kommen.
             `;
         } else {
             profileBox.style.setProperty("--profileBox-color", "var(--red)");
             profileBox.style.setProperty("--profileBox-color-alpha", "var(--red-alpha)");
             profileBox.style.setProperty("--profileBox-color-mouseover", "var(--red-mouseover)");
+
+            spanString =
+                spanString +
+                `Es muss sich nicht zwigend um ein betrügerisches Konto handeln. Allerdings ist Vorsicht geboten!
+                
+                `;
+
             spanString =
                 spanString +
                 `Der Verkäufer ist erst seit kurzen auf eBay Kleinanzeigen aktiv und konnte somit bei eventuellen betrügerischen Aktionen noch nicht entdeckt werden.
@@ -263,22 +271,10 @@ function runScript() {
             }
 
             if (sicherZahlen) {
-                spanString =
-                    spanString +
-                    `Sicheres Zahlen wurde hinterlegt.
-                
-                `;
+                spanString = spanString + `Sicheres Zahlen wurde hinterlegt.`;
             } else {
-                spanString =
-                    spanString +
-                    `Sicheres Zahlen wurde nicht hinterlegt
-                
-                `;
+                spanString = spanString + `Sicheres Zahlen wurde nicht hinterlegt`;
             }
-
-            spanString =
-                spanString +
-                `Es muss sich nicht zwigend um ein betrügerisches Konto handeln. Allerdings ist Vorsicht geboten!`;
         }
 
         profileBox.classList.add("popup");
@@ -385,7 +381,9 @@ function runScript() {
 
         description_text.setAttribute("contenteditable", true);
         description_text.setAttribute("spellcheck", true);
-        description_text.focus();
+        description_text.focus({
+            preventScroll: true,
+        });
     } else {
         //// Seller Profile Box off ////
         profileBox.classList.remove("profileBox");
