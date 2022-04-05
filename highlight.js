@@ -218,12 +218,15 @@ function runScript() {
             if (zufriedenheit > 0) {
                 spanString =
                     spanString +
-                    `Im Durchschnitt waren die Kunden sehr zufrieden mit dem Verkäufer.`;
+                    `Im Durchschnitt waren die Kunden sehr zufrieden mit dem Verkäufer.
+                    
+                    `;
             }
             if (sicherZahlen) {
                 spanString =
                     spanString +
-                    `Der Verkäufer bietet sicheres Zahlen über eBay Kleinanzeigen an. Im Notfall bekommst du so dein Geld zurück.`;
+                    `Der Verkäufer bietet sicheres Zahlen über eBay Kleinanzeigen an. Im Notfall bekommst du so dein Geld zurück.
+                    `;
             }
         } else if (aktivSeit > 180) {
             profileBox.style.setProperty("--profileBox-color", "var(--orange)");
@@ -485,6 +488,9 @@ async function ebay_fetch(productTitle) {
                 let price = item.querySelector(".aditem-main--middle--price").innerText.trim();
                 if (price.includes(".")) {
                     price = price.replace(".", "");
+                }
+                if (price.includes(",")) {
+                    price = price.split(",")[0];
                 }
                 let regex_price = /\d+/;
                 if (regex_price.exec(price) !== null) {
