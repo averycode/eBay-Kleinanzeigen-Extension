@@ -484,8 +484,9 @@ async function ebay_fetch(productTitle) {
                 "li.ad-listitem.lazyload-item:not(.badge-topad)"
             );
             let prices = [];
+            console.log(items[0])
             for (let item of items) {
-                let price = item.querySelector(".aditem-main--middle--price").innerText.trim();
+                let price = item.querySelector(".aditem-main--middle--price-shipping--price").innerText.trim();
                 if (price.includes(".")) {
                     price = price.replace(".", "");
                 }
@@ -650,6 +651,6 @@ async function ebay_fetch(productTitle) {
             productInfo_span.innerText = productString + versandString;
         })
         .catch(function (err) {
-            console.log("eBay Fetch Error : " + err);
+            console.log(err);
         });
 }
